@@ -16,10 +16,9 @@ from .serializers import (
     ProductListSerializer,
     SalesListSerializer,
     CategorySerializer,
-    ReviewSerializer,
     StoreSerializer,
 )
-from .models import Category, Product, Review, Store, SalesDetail
+from .models import Category, Product, Store, SalesDetail
 from .pagination import ListingPagination
 
 

@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 from requests import Response
 from datetime import datetime
-from .models import Category, Product, Review, SalesDetail, Store
+from .models import Category, Product, SalesDetail, Store
 from .tasks import send_to_cloudinary
 
 
@@ -19,62 +19,6 @@ def get_or_create_partial(model, field):
         created = True
     finally:
         return instance, created
-
-
-# Users Endpoints
-class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.SerializerMethodField()
-    product = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Review
-        fields = [
-            "author",
-            "comment",
-            "rating",
-            "store",
-            "product",
-        ]
-        read_only_fields = ["author", "product"]
-        extra_kwargs = {
-            "product": {"write_only": True},
-            "user": {"write_only": True},
-        }
-
-    def get_author(self, obj):
-        return obj.get_author()
-
-    def get_product(self, obj):
-        return f"{obj.product.brand} {obj.product.name}"
-
-    def create(self, validated_data):
-        product = validated_data["product"]
-        store = validated_data.get("store", None)
-        comment = validated_data["comment"]
-        rating = validated_data["rating"]
-        user = validated_data["user"]
-        is_scrapper = validated_data.get("is_scrapper", False)
-        qs = Review.objects.filter(product=product, store=store, user=user)
-        if qs:
-            return self.update(
-                qs,
-                {
-                    "product": product,
-                    "user": user,
-                    "store": store,
-                    "rating": rating,
-                    "comment": comment,
-                    "is_scrapper": is_scrapper,
-                },
-            )
-        return Review.objects.create(
-            product=product,
-            store=store,
-            comment=comment,
-            rating=rating,
-            user=user,
-            is_scrapper=is_scrapper,
-        )
 
 
 class SalesListSerializer(serializers.ModelSerializer):
@@ -150,7 +94,6 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     sales = SalesDetailSerializer(source="sales_details", many=True)
-    reviews = ReviewSerializer(many=True)
 
     class Meta:
         model = Product
@@ -163,9 +106,6 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["sales", "reviews"]
         extra_kwargs = {"category": {"write_only": True}}
-
-    def get_reviews(self, obj):
-        return obj.get_reviews()
 
 
 class CategorySerializer(serializers.ModelSerializer):
