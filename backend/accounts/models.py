@@ -6,17 +6,17 @@ from django.db import models
 
 
 class User(AbstractUser):
-    username = models.CharField(max_length=255, null=True)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    email = models.CharField(max_length=255, unique=True)
-    password = models.CharField(max_length=255)
+    # username = models.CharField(max_length=255, null=True)
+    # first_name = models.CharField(max_length=255)
+    # last_name = models.CharField(max_length=255)
+    # email = models.CharField(max_length=255, unique=True)
+    # password = models.CharField(max_length=255)
     is_verified = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
+    # is_active = models.BooleanField(default=False)
 
-    USERNAME_FIELD = "email"
-
-    REQUIRED_FIELDS = ["username"]
+    # USERNAME_FIELD = "email"
+    #
+    # REQUIRED_FIELDS = ["username"]
 
     def tokens(self):
         refresh = RefreshToken.for_user(self)

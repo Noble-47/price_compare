@@ -65,28 +65,25 @@ class RegisterView(APIView):
 class EmailVerifyView(APIView):
     def get(self, request):
         token = request.GET.get("token")
-
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms="HS256")
-            print(payload)
-            user = User.objects.get(id=payload["user_id"])
-            if not user.is_verified:
-                user.is_verified = True
-                user.save()
-            return Response(
-                {"email": "Successfully Activated your account"},
-                status=status.HTTP_200_OK,
-            )
-
-        except jwt.ExpiredSignatureError as identifier:
+        except jwt.ExpiredSignatureError:
             return Response(
                 {"error": "Token has expired"}, status=status.HTTP_408_REQUEST_TIMEOUT
             )
-
-        except jwt.exceptions.DecodeError as identifier:
+        except jwt.exceptions.DecodeError:
             return Response(
                 {"error": "invalid Token"}, status=status.HTTP_400_BAD_REQUEST
             )
+        user = User.objects.get(id=payload["user_id"])
+        if not user.is_verified:
+            user.is_verified = True
+            user.is_active = True
+            user.save()
+        return Response(
+            {"message": "Successfully Activated your account"},
+            status=status.HTTP_200_OK,
+        )
 
 
 class LoginView(APIView):
@@ -117,7 +114,7 @@ class LoginView(APIView):
         return response
 
 
-class UserView(APIView):
+class UserProfileView(APIView):
     def get(self, request):
         token = request.COOKIES.get("jwt")
 
@@ -130,9 +127,11 @@ class UserView(APIView):
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed("Unauthenticated!")
 
-        user = User.objects.filter(id=payload["id"]).first()
-        if not user.is_active:
-            user.is_active = True
+        user = User.objects.filter(id=payload["id"])
+        # set user as active upon email verification
+        # if email is not verified, user is not yet active
+        # if not user.is_active:
+        #     user.is_active = True
 
         serializer = UserSerializer(user)
 

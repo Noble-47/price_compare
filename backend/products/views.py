@@ -20,7 +20,6 @@ from .serializers import (
     StoreSerializer,
 )
 from .models import Category, Product, Review, Store, SalesDetail
-from .permissions import AllowScrapper
 from .pagination import ListingPagination
 
 
@@ -112,10 +111,3 @@ class ProductDetailApiView(generics.RetrieveAPIView):
     # gets a product and all related sales details
     queryset = Product.objects.all()
     serializer_class = ProductDetailSerializer
-
-
-# Views to List and Create review
-class ReviewAPIView(generics.ListCreateAPIView):
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]

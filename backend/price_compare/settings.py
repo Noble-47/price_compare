@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-from celery.schedules import crontab
+# from celery.schedules import crontab
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -20,7 +20,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables
-load_dotenv(BASE_DIR.parent / ".env")
+load_dotenv(BASE_DIR.parent / ".env", override=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -41,6 +41,12 @@ REDIS_HOST = os.environ["REDIS_HOST"]
 REDIS_PORT = os.environ["REDIS_PORT"]
 REDIS_DB = 0
 
+# database parameters
+db_name = os.environ["DATABASE_NAME"]
+db_port = os.environ["DATABASE_PORT"]
+db_pass = os.environ["DATABASE_PASSWORD"]
+db_user = os.environ["DATABASE_USER"]
+db_host = os.environ["DATABASE_HOST"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -61,6 +67,7 @@ INSTALLED_APPS = [
     "accounts",
     "products",
     "scrappers",
+    "wishlists",
 ]
 
 MIDDLEWARE = [
@@ -97,13 +104,17 @@ WSGI_APPLICATION = "price_compare.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": str(BASE_DIR / "db.sqlite3"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": db_name,
+        "USER": db_user,
+        "PASSWORD": db_pass,
+        "HOST": db_host,
+        "PORT": "5432",
     }
 }
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -166,18 +177,18 @@ EMAIL_HOST_PASSWORD = os.environ["EMAIL_PASSWORD"]
 
 # Celery config
 CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}"
-CELERY_BEAT_SCHEDULE = {
-    # update record every 3 hours
-    "update_product": {
-        "task": "products.tasks.crawl",
-        "schedule": crontab(hour="*/3"),
-    },
-    # run crawlers every two days
-    "run_crawlers": {
-        "task": "product.tasks.crawl",
-        "schedule": crontab(day_of_week=[0, 3, 6]),
-    },
-}
+# CELERY_BEAT_SCHEDULE = {
+#     # update record every 3 hours
+#     "update_product": {
+#         "task": "products.tasks.crawl",
+#         "schedule": crontab(hour="*/3"),
+#     },
+#     # run crawlers every two days
+#     "run_crawlers": {
+#         "task": "product.tasks.crawl",
+#         "schedule": crontab(day_of_week=[0, 3, 6]),
+#     },
+# }
 
 # Cloudinary config
 CLOUDINARY_CLOUD_NAME = os.environ["CLOUDINARY_CLOUD_NAME"]

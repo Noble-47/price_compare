@@ -10,11 +10,6 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ("name", "get_description", "get_absolute_url")
 
 
-@admin.register(Review)
-class ReviewAdmin(admin.ModelAdmin):
-    list_display = ("product", "comment", "date_time", "rating", "get_author")
-
-
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name", "is_sub_category", "get_absolute_url")

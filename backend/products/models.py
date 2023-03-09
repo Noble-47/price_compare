@@ -167,9 +167,7 @@ class SalesDetail(models.Model):
     price = models.DecimalField(
         max_digits=20, decimal_places=2, default=1.00, validators=[min_price_validator]
     )
-    # uncomment for postgres database
-    # price_changes = ArrayField(DecimalField(decimal_places=2), size=5)
-
+   
     # url to search on product on a particular store
     search_url = models.URLField(unique=True)
 
@@ -179,7 +177,10 @@ class SalesDetail(models.Model):
     available = models.BooleanField(default=True)
     description = models.TextField()
     modified = models.DateTimeField(auto_now_add=True)
-
+    comment = models.TextField(blank=True, null=True)
+    rating = models.DecimalField(
+        max_digits=3, decimal_places=2, validators=[max_rating_validator], default=0.00
+    )
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -190,9 +191,6 @@ class SalesDetail(models.Model):
     def get_store_name(self):
         return self.store.name
 
-    def get_price_history(self, n=5):
-        pass
-        # return self.price_changes
 
     def save(self, *args, **kwargs):
         # if self.price not in self.price_changes:
@@ -203,46 +201,3 @@ class SalesDetail(models.Model):
         return f"{self.product.name}@{self.store}"
 
 
-# This is the model for the reviews, rating and likes
-class Review(models.Model):
-    # not all reviews are users from our website
-    # some are from scrapped data
-
-    # name of the reviewer
-    product = models.ForeignKey(
-        Product, related_name="reviews", on_delete=models.CASCADE, null=True
-    )
-    date_time = models.DateTimeField(auto_now_add=True)
-    comment = models.TextField(blank=True, null=True)
-    rating = models.DecimalField(
-        max_digits=3, decimal_places=2, validators=[max_rating_validator], default=0.00
-    )
-    # store reference
-    store = models.ForeignKey(
-        Store,
-        on_delete=models.CASCADE,
-        related_name="reviews",
-        blank=True,
-        null=True,
-    )
-    # if the author is a user of our website
-    # the we use user as a reference
-    # else the user is our scrapper
-    is_scrapper = models.BooleanField(default=False)
-    user = models.ForeignKey(
-            User, related_name="reviews", on_delete=models.CASCADE, blank=True, null=True
-    )
-
-    class Meta:
-        ordering = ("-date_time",)
-
-    def get_author(self):
-        # if self.user.email != "scrapper@gmail.com":
-        #    return f"{self.user.first_name} {self.user.last_name}"
-        return ""  # f"user@{self.get_store()}"
-
-    def __str__(self):
-        return f"review by {self.get_author()} on {self.product}"
-
-    def get_store(self):
-        return self.store.name

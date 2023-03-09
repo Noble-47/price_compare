@@ -35,6 +35,7 @@ django-celery-beat = "*"
 cloudinary = "*"
 pillow = "*"
 aiohttp = "*"
+psycopg = {extras = ["binary"], version = "*"}
 
 [dev-packages]
 

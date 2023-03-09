@@ -1,11 +1,11 @@
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import (
-    smart_bytes,
-    smart_str,
-    DjangoUnicodeDecodeError,
+    # smart_bytes,
+    # smart_str,
+    # DjangoUnicodeDecodeError,
     force_str,
 )
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_decode  # , urlsafe_base64_encode
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -28,8 +28,8 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop("password", None)
         instance = self.Meta.model(**validated_data)
-        if password is not None:
-            instance.set_password(password)
+        # assert password is not None
+        instance.set_password(password)
         instance.save()
         return instance
 
@@ -53,7 +53,7 @@ class SetNewPasswordSerializer(serializers.Serializer):
         password = validated_data.pop("password", None)
         id = force_str(urlsafe_base64_decode(validated_data.get("uidb64")))
         instance = User.objects.get(id=id)
-        if password is not None:
-            instance.set_password(password)
+        # assert password is not None
+        instance.set_password(password)
         instance.save()
         return instance

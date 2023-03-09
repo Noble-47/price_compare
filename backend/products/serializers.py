@@ -83,6 +83,7 @@ class SalesListSerializer(serializers.ModelSerializer):
     product = serializers.StringRelatedField()
     brand = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
+
     class Meta:
         model = SalesDetail
         exclude = ["search_url"]
@@ -189,6 +190,7 @@ class StoreSerializer(serializers.ModelSerializer):
 
 
 ## Scrapper Endpoint
+## REDUNDANT scrapper should access db directly
 class Holder(serializers.Serializer):
     name = serializers.CharField()
 
@@ -314,7 +316,9 @@ class CreateProductSerializer(serializers.Serializer):
             product.update(sale)
             self.product = product
 
-        transaction.on_commit(lambda: send_to_cloudinary.apply_async(args=[sale_pk], countdown=40))
+        transaction.on_commit(
+            lambda: send_to_cloudinary.apply_async(args=[sale_pk], countdown=40)
+        )
         return self
 
 

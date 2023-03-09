@@ -6,7 +6,7 @@ from .views import (
     RegisterView,
     EmailVerifyView,
     LoginView,
-    UserView,
+    UserProfileView,
     RequestPasswordResetEmail,
     PasswordResetTokenCheckView,
     SetNewPasswordView,
@@ -20,7 +20,7 @@ urlpatterns = [
     path("verify-email", EmailVerifyView.as_view(), name="email-activate"),
     path("login", LoginView.as_view(), name="login"),
     path("token/refresh", TokenRefreshView.as_view(), name="token_refresh"),
-    path("user", UserView.as_view(), name="user"),
+    path("profile", UserProfileView.as_view(), name="user"),
     path(
         "request-password-reset",
         RequestPasswordResetEmail.as_view(),
